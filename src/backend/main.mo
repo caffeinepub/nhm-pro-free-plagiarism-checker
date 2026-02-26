@@ -3,9 +3,9 @@ import Nat "mo:core/Nat";
 import Array "mo:core/Array";
 import Float "mo:core/Float";
 import Iter "mo:core/Iter";
-import Migration "migration";
 
-(with migration = Migration.run)
+
+
 actor {
   type Segment = {
     segmentId : Nat;

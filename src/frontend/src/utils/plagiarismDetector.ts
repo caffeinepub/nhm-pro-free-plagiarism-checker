@@ -165,17 +165,23 @@ const CORPUS_PHRASES = [
 ];
 
 function normalizeText(text: string): string {
-  return text.toLowerCase().replace(/[^a-z0-9 ]/g, ' ').replace(/\s+/g, ' ').trim();
+  return text
+    .toLowerCase()
+    .replace(/[^a-z0-9 ]/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
 }
 
 function tokenize(text: string): string[] {
-  return normalizeText(text).split(' ').filter(w => w.length > 0);
+  return normalizeText(text)
+    .split(" ")
+    .filter((w) => w.length > 0);
 }
 
 function buildBigrams(words: string[]): string[] {
   const result: string[] = [];
   for (let i = 0; i + 1 < words.length; i++) {
-    result.push(words[i] + ' ' + words[i + 1]);
+    result.push(words[i] + " " + words[i + 1]);
   }
   return result;
 }
@@ -183,7 +189,7 @@ function buildBigrams(words: string[]): string[] {
 function buildTrigrams(words: string[]): string[] {
   const result: string[] = [];
   for (let i = 0; i + 2 < words.length; i++) {
-    result.push(words[i] + ' ' + words[i + 1] + ' ' + words[i + 2]);
+    result.push(words[i] + " " + words[i + 1] + " " + words[i + 2]);
   }
   return result;
 }
@@ -217,29 +223,101 @@ export function computeSegmentScore(text: string): number {
   return Math.min(1.0, matchCount / total);
 }
 
-const STOP_WORDS = new Set(['the','a','an','is','are','was','were','be','been','have','has','had','do','does','did','will','would','could','should','may','might','shall','can','to','of','in','on','at','by','for','with','as','it','this','that','these','those','and','or','but','not','so','from','into','than','then','they','their','there','here','when','where','which','who','how','all','any','each','few','more','most','other','some','such','own','same','also','just','both','about','over','after','before','while','through','during','between','among','within','without','very','too','been','its','we','our','you','your','he','his','she','her']);
+// ─── Synonym & structural paraphrase engine ───────────────────────────────────
 
-export function extractTopic(text: string): string {
-  const words = tokenize(text);
-  const meaningful = words.filter(w => w.length > 3 && !STOP_WORDS.has(w));
-  if (meaningful.length === 0) return 'this topic';
-  if (meaningful.length === 1) return meaningful[0];
-  return meaningful[0] + ' ' + meaningful[1];
+/** Replace key academic words with fresh synonyms */
+function replaceSynonyms(text: string, variant: number): string {
+  type SynGroup = [RegExp, string[]];
+  const synMap: SynGroup[] = [
+    [/\baccording to\b/gi, ["as outlined by", "per the findings of", "as documented by", "drawing from"]],
+    [/\bprevious research\b/gi, ["earlier investigations", "prior studies", "past scholarship", "earlier academic work"]],
+    [/\bhas been shown\b/gi, ["has been demonstrated", "has been established", "has been confirmed", "is well documented"]],
+    [/\bit can be concluded\b/gi, ["the evidence leads to the conclusion", "one can reasonably infer", "the data supports the view", "analysis confirms"]],
+    [/\bthe results indicate\b/gi, ["the findings reveal", "the data points to", "observations confirm", "evidence demonstrates"]],
+    [/\bfurthermore\b/gi, ["in addition", "beyond that", "building on this", "what is more"]],
+    [/\bmoreover\b/gi, ["additionally", "alongside this", "further still", "on top of that"]],
+    [/\bin conclusion\b/gi, ["to summarize the findings", "drawing all threads together", "as a final observation", "in summary"]],
+    [/\bstudies have shown\b/gi, ["research consistently reveals", "academic work demonstrates", "investigations confirm", "scholarly evidence shows"]],
+    [/\bit is important to note\b/gi, ["worth highlighting here is", "a key point to consider is", "notably", "one should acknowledge that"]],
+    [/\bin recent years\b/gi, ["over the past decade", "in contemporary research", "in the modern era", "within current discourse"]],
+    [/\bas mentioned above\b/gi, ["as discussed earlier", "as previously established", "referring back to the earlier point", "as noted"]],
+    [/\bsignificant\b/gi, ["substantial", "considerable", "noteworthy", "meaningful"]],
+    [/\binvestigation\b/gi, ["examination", "analysis", "exploration", "inquiry"]],
+    [/\bdemonstrated\b/gi, ["shown", "revealed", "established", "confirmed"]],
+    [/\beffective\b/gi, ["successful", "productive", "impactful", "reliable"]],
+    [/\butilize\b/gi, ["use", "apply", "employ", "leverage"]],
+    [/\bthus\b/gi, ["therefore", "as a result", "consequently", "hence"]],
+    [/\bsuch as\b/gi, ["for example", "including", "like", "particularly"]],
+    [/\bhowever\b/gi, ["yet", "that said", "in contrast", "despite this"]],
+  ];
+
+  let result = text;
+  for (const [pattern, synonyms] of synMap) {
+    const pick = synonyms[variant % synonyms.length];
+    result = result.replace(pattern, pick);
+  }
+  return result;
 }
 
-export function generateAlternatives(text: string, score: number): string[] {
-  const topic = extractTopic(text);
-  if (score > 0.6) {
-    return [
-      `Rewrite in your own words: explain ${topic} using your own analysis and observations.`,
-      `Paraphrase: describe how ${topic} relates to your argument without using standard academic formulas.`,
-    ];
-  } else {
-    return [
-      `Try rephrasing: instead of common academic phrasing, directly state your own interpretation of ${topic}.`,
-      `Alternative: express the idea about ${topic} more concisely and in your personal voice.`,
-    ];
+/** Convert passive-voice-like patterns to active voice */
+function activateVoice(text: string): string {
+  return text
+    .replace(/\bwas found that\b/gi, "revealed that")
+    .replace(/\bwere observed\b/gi, "the team observed")
+    .replace(/\bhas been established\b/gi, "researchers established")
+    .replace(/\bhas been reported\b/gi, "scholars have reported")
+    .replace(/\bwas demonstrated\b/gi, "the data demonstrated")
+    .replace(/\bwere identified\b/gi, "the analysis identified")
+    .replace(/\bwas conducted\b/gi, "the team conducted")
+    .replace(/\bwas analyzed\b/gi, "the study analyzed");
+}
+
+/** Reorder sentence by moving trailing clause to the front */
+function reorderClauses(text: string): string {
+  // Move a trailing "in order to X" or "to achieve X" to the beginning
+  const match = text.match(/^(.*?),?\s+(in order to .+|to achieve .+|to examine .+|to investigate .+)\.?$/i);
+  if (match) {
+    const main = match[1].trim();
+    const purpose = match[2].trim();
+    const capitalized = purpose.charAt(0).toUpperCase() + purpose.slice(1);
+    return `${capitalized}, ${main.charAt(0).toLowerCase()}${main.slice(1)}.`;
   }
+
+  // Move a leading "It has been..." framing to a subject-first form
+  const itMatch = text.match(/^It (?:has been|was|is) (\w+) (?:that|by) (.+)$/i);
+  if (itMatch) {
+    return `${itMatch[2].charAt(0).toUpperCase()}${itMatch[2].slice(1)} ${itMatch[1]} this.`;
+  }
+
+  return text;
+}
+
+/** Generate 3 humanized, structurally distinct rewrites of a sentence */
+export function generateAlternatives(text: string, _score: number): string[] {
+  const trimmed = text.trim();
+  if (!trimmed || trimmed.split(/\s+/).length < 4) return [];
+
+  // Three different transformation strategies
+  const alt1 = activateVoice(replaceSynonyms(trimmed, 0));
+  const alt2 = replaceSynonyms(trimmed, 1);
+  const alt3 = reorderClauses(replaceSynonyms(activateVoice(trimmed), 2));
+
+  // Ensure each alternative is meaningfully different from the original
+  const alts = [alt1, alt2, alt3];
+
+  // If a transformation didn't change the text, use a word-swap on the full sentence
+  return alts.map((alt, i) => {
+    if (alt === trimmed) {
+      // Force a minimal synonym swap
+      return replaceSynonyms(trimmed, i + 3);
+    }
+    // Ensure capital first letter and proper ending
+    const cleaned = alt.trim();
+    const result = cleaned.charAt(0).toUpperCase() + cleaned.slice(1);
+    return result.endsWith(".") || result.endsWith("!") || result.endsWith("?")
+      ? result
+      : result + ".";
+  });
 }
 
 export interface FrontendSegment {
@@ -248,6 +326,8 @@ export interface FrontendSegment {
   score: number;
   flagged: boolean;
   alternatives: string[];
+  /** Character offset of this segment in the original text (undefined for backend-retrieved results) */
+  charOffset?: number;
 }
 
 export interface FrontendCheckResult {
@@ -258,34 +338,50 @@ export interface FrontendCheckResult {
 
 export function analyzeText(text: string): FrontendCheckResult {
   // Split into sentences
-  const rawSegments: string[] = [];
-  let current = '';
-  let prevChar = '';
-  for (const ch of text) {
-    if ((prevChar === '.' || prevChar === '!' || prevChar === '?') && ch === ' ') {
+  const rawSegments: Array<{ text: string; offset: number }> = [];
+  let current = "";
+  let segStart = 0;
+  let prevChar = "";
+
+  for (let i = 0; i < text.length; i++) {
+    const ch = text[i];
+    if (
+      (prevChar === "." || prevChar === "!" || prevChar === "?") &&
+      ch === " "
+    ) {
       const trimmed = current.trim();
-      if (trimmed.length > 0) rawSegments.push(trimmed);
-      current = '';
+      if (trimmed.length > 0) {
+        rawSegments.push({ text: trimmed, offset: segStart });
+      }
+      segStart = i + 1;
+      current = "";
     } else {
       current += ch;
     }
     prevChar = ch;
   }
+
   const lastTrimmed = current.trim();
-  if (lastTrimmed.length > 0) rawSegments.push(lastTrimmed);
+  if (lastTrimmed.length > 0) {
+    rawSegments.push({ text: lastTrimmed, offset: segStart });
+  }
 
   // If no sentence boundaries found, chunk by roughly 20 words
-  let segTexts = rawSegments;
-  if (segTexts.length <= 1 && text.trim().length > 0) {
+  let segData = rawSegments;
+  if (segData.length <= 1 && text.trim().length > 0) {
     const words = text.trim().split(/\s+/);
     const chunkSize = 20;
-    segTexts = [];
+    segData = [];
+    let offset = 0;
     for (let i = 0; i < words.length; i += chunkSize) {
-      segTexts.push(words.slice(i, i + chunkSize).join(' '));
+      const chunk = words.slice(i, i + chunkSize).join(" ");
+      const idx = text.indexOf(chunk, offset);
+      segData.push({ text: chunk, offset: idx >= 0 ? idx : offset });
+      offset = idx >= 0 ? idx + chunk.length : offset + chunk.length;
     }
   }
 
-  const segments: FrontendSegment[] = segTexts.map((seg, idx) => {
+  const segments: FrontendSegment[] = segData.map(({ text: seg, offset }, idx) => {
     const score = computeSegmentScore(seg);
     const flagged = score > 0.15;
     return {
@@ -294,12 +390,14 @@ export function analyzeText(text: string): FrontendCheckResult {
       score,
       flagged,
       alternatives: flagged ? generateAlternatives(seg, score) : [],
+      charOffset: offset,
     };
   });
 
-  const overallScore = segments.length > 0
-    ? segments.reduce((sum, s) => sum + s.score, 0) / segments.length
-    : 0;
+  // Overall score = fraction of flagged sentences * 100
+  const flaggedCount = segments.filter((s) => s.flagged).length;
+  const overallScore =
+    segments.length > 0 ? flaggedCount / segments.length : 0;
 
   return {
     id: BigInt(0),

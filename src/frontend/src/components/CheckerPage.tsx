@@ -65,23 +65,25 @@ export function CheckerPage() {
     // Auto-grow
     const ta = e.target;
     ta.style.height = "auto";
-    ta.style.height = `${Math.max(200, ta.scrollHeight)}px`;
+    ta.style.height = `${Math.max(240, ta.scrollHeight)}px`;
   };
 
   return (
     <main className="flex-1">
-      {/* Hero section */}
+      {/* Hero / input section */}
       <section
-        className="relative overflow-hidden py-16 sm:py-20"
+        className="relative overflow-hidden py-12 sm:py-16"
         style={{
-          background: "linear-gradient(180deg, oklch(0.97 0.015 255) 0%, oklch(0.99 0.005 240) 100%)",
+          background:
+            "linear-gradient(180deg, oklch(0.97 0.015 255) 0%, oklch(0.99 0.005 240) 100%)",
         }}
       >
-        {/* Decorative background elements */}
+        {/* Decorative blobs */}
         <div
           className="absolute top-0 right-0 w-96 h-96 rounded-full opacity-20 pointer-events-none"
           style={{
-            background: "radial-gradient(circle, oklch(0.6 0.12 248) 0%, transparent 70%)",
+            background:
+              "radial-gradient(circle, oklch(0.6 0.12 248) 0%, transparent 70%)",
             transform: "translate(30%, -30%)",
           }}
           aria-hidden="true"
@@ -89,7 +91,8 @@ export function CheckerPage() {
         <div
           className="absolute bottom-0 left-0 w-64 h-64 rounded-full opacity-10 pointer-events-none"
           style={{
-            background: "radial-gradient(circle, oklch(0.55 0.18 145) 0%, transparent 70%)",
+            background:
+              "radial-gradient(circle, oklch(0.55 0.18 145) 0%, transparent 70%)",
             transform: "translate(-30%, 30%)",
           }}
           aria-hidden="true"
@@ -97,7 +100,7 @@ export function CheckerPage() {
 
         <div className="max-w-6xl mx-auto px-4 sm:px-6 relative">
           {/* Heading */}
-          <div className="text-center mb-10 animate-fade-slide-up">
+          <div className="text-center mb-8 animate-fade-slide-up">
             <h1
               className="font-display font-extrabold text-3xl sm:text-4xl lg:text-5xl leading-tight mb-3"
               style={{ color: "oklch(0.2 0.075 255)" }}
@@ -105,7 +108,8 @@ export function CheckerPage() {
               NHM Pro Free{" "}
               <span
                 style={{
-                  background: "linear-gradient(90deg, oklch(0.45 0.16 255) 0%, oklch(0.55 0.18 248) 100%)",
+                  background:
+                    "linear-gradient(90deg, oklch(0.45 0.16 255) 0%, oklch(0.55 0.18 248) 100%)",
                   WebkitBackgroundClip: "text",
                   WebkitTextFillColor: "transparent",
                 }}
@@ -113,21 +117,24 @@ export function CheckerPage() {
                 Plagiarism Checker
               </span>
             </h1>
-            <p className="font-display text-base sm:text-lg" style={{ color: "oklch(0.45 0.04 240)" }}>
-              Fast, Free & Unlimited Plagiarism Detection for All Fields of Study
+            <p
+              className="font-display text-base sm:text-lg"
+              style={{ color: "oklch(0.45 0.04 240)" }}
+            >
+              Fast, Free &amp; Unlimited Plagiarism Detection for All Fields of Study
             </p>
           </div>
 
           {/* Feature pills */}
-          <div className="flex flex-wrap justify-center gap-2 mb-8 animate-fade-slide-up stagger-2">
+          <div className="flex flex-wrap justify-center gap-2 mb-6 animate-fade-slide-up stagger-2">
             {[
               { icon: Zap, text: "Instant Results" },
               { icon: InfinityIcon, text: "Unlimited Characters" },
               { icon: BookOpen, text: "All Study Fields" },
               { icon: FileText, text: "Free Reports" },
-            ].map(({ icon: Icon, text }) => (
+            ].map(({ icon: Icon, text: label }) => (
               <div
-                key={text}
+                key={label}
                 className="inline-flex items-center gap-1.5 text-xs font-display font-medium px-3 py-1.5 rounded-full"
                 style={{
                   backgroundColor: "oklch(1 0 0)",
@@ -137,7 +144,7 @@ export function CheckerPage() {
                 }}
               >
                 <Icon className="w-3 h-3" />
-                {text}
+                {label}
               </div>
             ))}
           </div>
@@ -153,13 +160,14 @@ export function CheckerPage() {
             {/* Textarea */}
             <div className="p-4 sm:p-6">
               <textarea
+                id="original-input"
                 ref={textareaRef}
                 value={text}
                 onChange={handleTextareaChange}
                 placeholder="Paste or type your text here — essays, research papers, dissertations, articles, and more. No character limit."
-                className="w-full resize-none outline-none font-serif text-sm sm:text-base leading-relaxed placeholder:font-sans placeholder:text-muted-foreground bg-transparent"
+                className="w-full resize-none outline-none font-serif text-sm sm:text-base leading-relaxed placeholder:font-sans placeholder:text-muted-foreground bg-transparent rounded-lg transition-all duration-200"
                 style={{
-                  minHeight: "200px",
+                  minHeight: "240px",
                   color: "oklch(0.18 0.04 255)",
                 }}
                 disabled={isAnalyzing}
@@ -169,17 +177,26 @@ export function CheckerPage() {
             {/* Bottom bar */}
             <div
               className="px-4 sm:px-6 py-3 flex flex-wrap items-center justify-between gap-3 border-t"
-              style={{ borderColor: "oklch(0.92 0.01 240)", backgroundColor: "oklch(0.98 0.005 240)" }}
+              style={{
+                borderColor: "oklch(0.92 0.01 240)",
+                backgroundColor: "oklch(0.98 0.005 240)",
+              }}
             >
               <div className="flex items-center gap-4">
                 <span className="font-display text-xs text-muted-foreground">
-                  <span className="font-semibold" style={{ color: "oklch(0.35 0.07 255)" }}>
+                  <span
+                    className="font-semibold"
+                    style={{ color: "oklch(0.35 0.07 255)" }}
+                  >
                     {charCount.toLocaleString()}
                   </span>{" "}
                   characters
                 </span>
                 <span className="font-display text-xs text-muted-foreground">
-                  <span className="font-semibold" style={{ color: "oklch(0.35 0.07 255)" }}>
+                  <span
+                    className="font-semibold"
+                    style={{ color: "oklch(0.35 0.07 255)" }}
+                  >
                     {wordCount.toLocaleString()}
                   </span>{" "}
                   words
@@ -206,9 +223,16 @@ export function CheckerPage() {
                   disabled={!text.trim() || isAnalyzing}
                   className="font-display font-semibold gap-2 px-5"
                   style={{
-                    backgroundColor: !text.trim() || isAnalyzing ? undefined : "oklch(0.28 0.08 255)",
-                    color: !text.trim() || isAnalyzing ? undefined : "white",
-                    boxShadow: !text.trim() || isAnalyzing ? undefined : "0 2px 12px oklch(0.28 0.08 255 / 0.4)",
+                    backgroundColor:
+                      !text.trim() || isAnalyzing
+                        ? undefined
+                        : "oklch(0.28 0.08 255)",
+                    color:
+                      !text.trim() || isAnalyzing ? undefined : "white",
+                    boxShadow:
+                      !text.trim() || isAnalyzing
+                        ? undefined
+                        : "0 2px 12px oklch(0.28 0.08 255 / 0.4)",
                   }}
                 >
                   {isAnalyzing ? (
@@ -236,8 +260,14 @@ export function CheckerPage() {
                 border: "1px solid oklch(0.8 0.16 25 / 0.4)",
               }}
             >
-              <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5" style={{ color: "oklch(0.55 0.22 25)" }} />
-              <p className="font-display text-sm" style={{ color: "oklch(0.42 0.18 25)" }}>
+              <AlertTriangle
+                className="w-4 h-4 shrink-0 mt-0.5"
+                style={{ color: "oklch(0.55 0.22 25)" }}
+              />
+              <p
+                className="font-display text-sm"
+                style={{ color: "oklch(0.42 0.18 25)" }}
+              >
                 {error}
               </p>
             </div>
@@ -275,8 +305,9 @@ export function CheckerPage() {
                   Analysis Complete
                 </h2>
                 <p className="font-display text-sm text-muted-foreground mb-4">
-                  Your text has been analyzed. Highlighted segments indicate potentially plagiarized content.
-                  Click any highlighted passage to see rewrite suggestions.
+                  Highlighted passages below indicate potentially similar content.{" "}
+                  <strong>Click any highlight</strong> to see humanized rewrites
+                  and jump to that sentence in your original text.
                 </p>
 
                 <div className="flex flex-wrap justify-center sm:justify-start gap-4 mb-4">
@@ -287,7 +318,9 @@ export function CheckerPage() {
                     >
                       {result.segments.filter((s) => s.flagged).length}
                     </div>
-                    <div className="font-display text-xs text-muted-foreground">Flagged Segments</div>
+                    <div className="font-display text-xs text-muted-foreground">
+                      Flagged Segments
+                    </div>
                   </div>
                   <div className="w-px bg-border hidden sm:block" />
                   <div className="text-center">
@@ -297,7 +330,9 @@ export function CheckerPage() {
                     >
                       {result.segments.length}
                     </div>
-                    <div className="font-display text-xs text-muted-foreground">Total Segments</div>
+                    <div className="font-display text-xs text-muted-foreground">
+                      Total Segments
+                    </div>
                   </div>
                 </div>
 
@@ -306,16 +341,26 @@ export function CheckerPage() {
                   <div className="flex items-center gap-1.5">
                     <span
                       className="w-3 h-3 rounded-sm shrink-0"
-                      style={{ backgroundColor: "oklch(0.95 0.07 15)", border: "1.5px solid oklch(0.58 0.2 25)" }}
+                      style={{
+                        backgroundColor: "oklch(0.95 0.07 15)",
+                        border: "1.5px solid oklch(0.58 0.2 25)",
+                      }}
                     />
-                    <span className="text-muted-foreground">High (&gt;60%)</span>
+                    <span className="text-muted-foreground">
+                      High (&gt;60%)
+                    </span>
                   </div>
                   <div className="flex items-center gap-1.5">
                     <span
                       className="w-3 h-3 rounded-sm shrink-0"
-                      style={{ backgroundColor: "oklch(0.95 0.09 85)", border: "1.5px solid oklch(0.72 0.14 72)" }}
+                      style={{
+                        backgroundColor: "oklch(0.95 0.09 85)",
+                        border: "1.5px solid oklch(0.72 0.14 72)",
+                      }}
                     />
-                    <span className="text-muted-foreground">Moderate (30–60%)</span>
+                    <span className="text-muted-foreground">
+                      Moderate (15–60%)
+                    </span>
                   </div>
                 </div>
               </div>
@@ -348,27 +393,98 @@ export function CheckerPage() {
             </div>
           </div>
 
-          {/* Annotated text */}
-          <div
-            className="rounded-2xl border p-6 sm:p-8"
-            style={{
-              backgroundColor: "oklch(1 0 0)",
-              borderColor: "oklch(0.88 0.015 240)",
-              boxShadow: "0 4px 24px oklch(0.18 0.04 255 / 0.06)",
-            }}
-          >
-            <div className="flex items-center justify-between mb-5">
-              <h2
-                className="font-display font-semibold text-base"
-                style={{ color: "oklch(0.2 0.075 255)" }}
+          {/* Two-column: original input (left) + annotated text (right) */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* Left: editable original text */}
+            <div
+              className="rounded-2xl border flex flex-col"
+              style={{
+                backgroundColor: "oklch(1 0 0)",
+                borderColor: "oklch(0.88 0.015 240)",
+                boxShadow: "0 4px 24px oklch(0.18 0.04 255 / 0.06)",
+              }}
+            >
+              <div
+                className="px-6 py-4 border-b flex items-center justify-between"
+                style={{ borderColor: "oklch(0.92 0.01 240)" }}
               >
-                Annotated Text
-              </h2>
-              <span className="font-display text-xs text-muted-foreground">
-                Click highlighted segments to see alternatives
-              </span>
+                <div>
+                  <h2
+                    className="font-display font-semibold text-base"
+                    style={{ color: "oklch(0.2 0.075 255)" }}
+                  >
+                    Original Text
+                  </h2>
+                  <p className="font-display text-xs text-muted-foreground mt-0.5">
+                    Click a highlight in the annotated view to jump here
+                  </p>
+                </div>
+                <div
+                  className="text-xs font-display px-2 py-1 rounded-md"
+                  style={{
+                    backgroundColor: "oklch(0.94 0.02 255)",
+                    color: "oklch(0.35 0.08 255)",
+                  }}
+                >
+                  Editable
+                </div>
+              </div>
+              <div className="flex-1 p-6">
+                <textarea
+                  id="original-input"
+                  ref={textareaRef}
+                  value={text}
+                  onChange={handleTextareaChange}
+                  className="w-full h-full resize-none outline-none font-serif text-sm leading-relaxed bg-transparent rounded-lg transition-all duration-200"
+                  style={{
+                    minHeight: "320px",
+                    color: "oklch(0.18 0.04 255)",
+                  }}
+                />
+              </div>
             </div>
-            <AnnotatedText segments={result.segments} />
+
+            {/* Right: annotated view */}
+            <div
+              className="rounded-2xl border flex flex-col"
+              style={{
+                backgroundColor: "oklch(1 0 0)",
+                borderColor: "oklch(0.88 0.015 240)",
+                boxShadow: "0 4px 24px oklch(0.18 0.04 255 / 0.06)",
+              }}
+            >
+              <div
+                className="px-6 py-4 border-b flex items-center justify-between"
+                style={{ borderColor: "oklch(0.92 0.01 240)" }}
+              >
+                <div>
+                  <h2
+                    className="font-display font-semibold text-base"
+                    style={{ color: "oklch(0.2 0.075 255)" }}
+                  >
+                    Annotated Text
+                  </h2>
+                  <p className="font-display text-xs text-muted-foreground mt-0.5">
+                    Click a highlight to see rewrites &amp; jump to original
+                  </p>
+                </div>
+                <div
+                  className="text-xs font-display px-2 py-1 rounded-md"
+                  style={{
+                    backgroundColor: "oklch(0.94 0.09 85 / 0.4)",
+                    color: "oklch(0.42 0.1 72)",
+                  }}
+                >
+                  Read-only
+                </div>
+              </div>
+              <div className="flex-1 p-6 overflow-y-auto">
+                <AnnotatedText
+                  segments={result.segments}
+                  textareaRef={textareaRef}
+                />
+              </div>
+            </div>
           </div>
         </section>
       )}

@@ -1,0 +1,234 @@
+@import url("https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Lora:ital,wght@0,400;0,500;0,600;1,400&display=swap");
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --radius: 0.5rem;
+
+    /* Navy-anchored academic palette */
+    --background: 0.98 0.003 240;
+    --foreground: 0.18 0.04 255;
+
+    --card: 1 0 0;
+    --card-foreground: 0.18 0.04 255;
+
+    --popover: 1 0 0;
+    --popover-foreground: 0.18 0.04 255;
+
+    /* Deep navy primary */
+    --primary: 0.28 0.08 255;
+    --primary-foreground: 0.98 0.003 240;
+
+    --secondary: 0.94 0.01 240;
+    --secondary-foreground: 0.28 0.08 255;
+
+    --muted: 0.94 0.01 240;
+    --muted-foreground: 0.52 0.03 240;
+
+    --accent: 0.94 0.01 240;
+    --accent-foreground: 0.28 0.08 255;
+
+    --destructive: 0.58 0.22 27;
+    --destructive-foreground: 0.98 0 0;
+
+    --border: 0.88 0.015 240;
+    --input: 0.92 0.01 240;
+    --ring: 0.4 0.1 255;
+
+    /* Semantic highlight colors */
+    --highlight-amber-bg: 0.95 0.09 85;
+    --highlight-amber-border: 0.72 0.14 72;
+    --highlight-amber-text: 0.42 0.1 72;
+
+    --highlight-red-bg: 0.95 0.07 15;
+    --highlight-red-border: 0.58 0.2 25;
+    --highlight-red-text: 0.42 0.18 25;
+
+    --navy: 0.26 0.085 255;
+    --navy-dark: 0.2 0.075 255;
+    --navy-light: 0.35 0.07 255;
+    --blue-accent: 0.55 0.18 248;
+
+    --chart-1: 0.646 0.222 41.116;
+    --chart-2: 0.6 0.118 184.704;
+    --chart-3: 0.398 0.07 227.392;
+    --chart-4: 0.828 0.189 84.429;
+    --chart-5: 0.769 0.188 70.08;
+
+    --sidebar: 0.985 0 0;
+    --sidebar-foreground: 0.145 0 0;
+    --sidebar-primary: 0.205 0 0;
+    --sidebar-primary-foreground: 0.985 0 0;
+    --sidebar-accent: 0.97 0 0;
+    --sidebar-accent-foreground: 0.205 0 0;
+    --sidebar-border: 0.922 0 0;
+    --sidebar-ring: 0.708 0 0;
+
+    /* Motion timing */
+    --ease-smooth: cubic-bezier(0.4, 0, 0.2, 1);
+    --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: "Outfit", sans-serif;
+    font-weight: 600;
+  }
+}
+
+@layer utilities {
+  .font-display {
+    font-family: "Outfit", sans-serif;
+  }
+
+  .font-body-serif {
+    font-family: "Lora", serif;
+  }
+
+  /* Animated gauge arc */
+  .gauge-arc {
+    transition: stroke-dashoffset 1.2s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  /* Highlighted text segments */
+  .segment-amber {
+    background-color: oklch(var(--highlight-amber-bg));
+    border-bottom: 2px solid oklch(var(--highlight-amber-border));
+    color: oklch(var(--highlight-amber-text));
+    border-radius: 2px;
+    padding: 1px 2px;
+    cursor: pointer;
+    transition: background-color 0.15s ease;
+  }
+
+  .segment-amber:hover,
+  .segment-amber.active {
+    background-color: oklch(0.88 0.12 80);
+  }
+
+  .segment-red {
+    background-color: oklch(var(--highlight-red-bg));
+    border-bottom: 2px solid oklch(var(--highlight-red-border));
+    color: oklch(var(--highlight-red-text));
+    border-radius: 2px;
+    padding: 1px 2px;
+    cursor: pointer;
+    transition: background-color 0.15s ease;
+  }
+
+  .segment-red:hover,
+  .segment-red.active {
+    background-color: oklch(0.88 0.1 15);
+  }
+
+  /* Page entry animations */
+  @keyframes fadeSlideUp {
+    from {
+      opacity: 0;
+      transform: translateY(16px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  @keyframes scaleIn {
+    from {
+      opacity: 0;
+      transform: scale(0.96);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+
+  .animate-fade-slide-up {
+    animation: fadeSlideUp 0.45s var(--ease-smooth) both;
+  }
+
+  .animate-fade-in {
+    animation: fadeIn 0.3s ease both;
+  }
+
+  .animate-scale-in {
+    animation: scaleIn 0.35s var(--ease-smooth) both;
+  }
+
+  .stagger-1 { animation-delay: 0.05s; }
+  .stagger-2 { animation-delay: 0.1s; }
+  .stagger-3 { animation-delay: 0.15s; }
+  .stagger-4 { animation-delay: 0.2s; }
+  .stagger-5 { animation-delay: 0.25s; }
+
+  /* Header gradient */
+  .header-gradient {
+    background: linear-gradient(135deg, oklch(0.2 0.075 255) 0%, oklch(0.28 0.08 255) 50%, oklch(0.26 0.1 248) 100%);
+  }
+
+  /* Score badge glow */
+  .score-low {
+    box-shadow: 0 0 0 3px oklch(0.8 0.15 145 / 0.3);
+  }
+
+  .score-moderate {
+    box-shadow: 0 0 0 3px oklch(0.8 0.15 80 / 0.3);
+  }
+
+  .score-high {
+    box-shadow: 0 0 0 3px oklch(0.8 0.2 25 / 0.3);
+  }
+
+  /* Print styles */
+  @media print {
+    .no-print {
+      display: none !important;
+    }
+
+    .print-only {
+      display: block !important;
+    }
+
+    body {
+      background: white !important;
+      color: black !important;
+    }
+
+    .print-container {
+      max-width: 100% !important;
+      padding: 20px !important;
+    }
+
+    .segment-amber {
+      background-color: #fef3c7 !important;
+      border-bottom: 2px solid #d97706 !important;
+      color: #92400e !important;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+
+    .segment-red {
+      background-color: #fee2e2 !important;
+      border-bottom: 2px solid #dc2626 !important;
+      color: #991b1b !important;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+  }
+}

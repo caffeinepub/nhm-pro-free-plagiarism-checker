@@ -1,5 +1,5 @@
-import { useState, useCallback, useRef } from "react";
-import { Copy, Check, ChevronUp, ArrowUpLeft } from "lucide-react";
+import { ArrowUpLeft, Check, ChevronUp, Copy } from "lucide-react";
+import { useCallback, useRef, useState } from "react";
 import type { FrontendSegment } from "../utils/plagiarismDetector";
 
 // ─── Copy Button ──────────────────────────────────────────────────────────────
@@ -32,7 +32,9 @@ function CopyButton({ text, altIndex }: { text: string; altIndex: string }) {
       className="inline-flex items-center gap-1 text-xs px-2 py-1 rounded border transition-all duration-150 shrink-0"
       style={{
         borderColor: "oklch(0.88 0.015 240)",
-        backgroundColor: copied ? "oklch(0.92 0.08 145 / 0.2)" : "oklch(0.96 0.01 240)",
+        backgroundColor: copied
+          ? "oklch(0.92 0.08 145 / 0.2)"
+          : "oklch(0.96 0.01 240)",
         color: copied ? "oklch(0.42 0.14 145)" : "oklch(0.42 0.04 240)",
       }}
       title="Copy to clipboard"
@@ -52,7 +54,11 @@ interface SegmentPanelProps {
   onJumpToOriginal: () => void;
 }
 
-function SegmentPanel({ segment, onClose, onJumpToOriginal }: SegmentPanelProps) {
+function SegmentPanel({
+  segment,
+  onClose,
+  onJumpToOriginal,
+}: SegmentPanelProps) {
   const pct = Math.round(segment.score * 100);
   const isHigh = segment.score > 0.6;
 
@@ -61,7 +67,9 @@ function SegmentPanel({ segment, onClose, onJumpToOriginal }: SegmentPanelProps)
       className="mt-3 mb-4 rounded-xl border p-4 animate-scale-in"
       style={{
         backgroundColor: isHigh ? "oklch(0.97 0.03 15)" : "oklch(0.97 0.04 85)",
-        borderColor: isHigh ? "oklch(0.72 0.18 25 / 0.4)" : "oklch(0.72 0.14 72 / 0.4)",
+        borderColor: isHigh
+          ? "oklch(0.72 0.18 25 / 0.4)"
+          : "oklch(0.72 0.14 72 / 0.4)",
       }}
     >
       {/* Panel header */}
@@ -70,7 +78,9 @@ function SegmentPanel({ segment, onClose, onJumpToOriginal }: SegmentPanelProps)
           <span
             className="text-xs font-display font-bold px-2.5 py-1 rounded-full"
             style={{
-              backgroundColor: isHigh ? "oklch(0.55 0.22 25)" : "oklch(0.65 0.18 72)",
+              backgroundColor: isHigh
+                ? "oklch(0.55 0.22 25)"
+                : "oklch(0.65 0.18 72)",
               color: "white",
             }}
           >
@@ -86,8 +96,12 @@ function SegmentPanel({ segment, onClose, onJumpToOriginal }: SegmentPanelProps)
             onClick={onJumpToOriginal}
             className="inline-flex items-center gap-1 text-xs px-2.5 py-1 rounded-lg border font-display font-medium transition-all duration-150 hover:shadow-sm"
             style={{
-              borderColor: isHigh ? "oklch(0.58 0.2 25 / 0.5)" : "oklch(0.65 0.18 72 / 0.5)",
-              backgroundColor: isHigh ? "oklch(0.55 0.22 25 / 0.08)" : "oklch(0.65 0.18 72 / 0.08)",
+              borderColor: isHigh
+                ? "oklch(0.58 0.2 25 / 0.5)"
+                : "oklch(0.65 0.18 72 / 0.5)",
+              backgroundColor: isHigh
+                ? "oklch(0.55 0.22 25 / 0.08)"
+                : "oklch(0.65 0.18 72 / 0.08)",
               color: isHigh ? "oklch(0.42 0.18 25)" : "oklch(0.42 0.1 72)",
             }}
             title="Scroll to this sentence in the original text to edit it"
@@ -111,13 +125,17 @@ function SegmentPanel({ segment, onClose, onJumpToOriginal }: SegmentPanelProps)
         className="mb-4 p-3 rounded-lg border"
         style={{
           backgroundColor: "oklch(1 0 0 / 0.6)",
-          borderColor: isHigh ? "oklch(0.72 0.18 25 / 0.25)" : "oklch(0.72 0.14 72 / 0.25)",
+          borderColor: isHigh
+            ? "oklch(0.72 0.18 25 / 0.25)"
+            : "oklch(0.72 0.14 72 / 0.25)",
         }}
       >
         <p className="text-xs font-display font-semibold uppercase tracking-wide text-muted-foreground mb-1.5">
           Flagged sentence
         </p>
-        <p className="text-sm font-serif leading-relaxed text-foreground">{segment.text}</p>
+        <p className="text-sm font-serif leading-relaxed text-foreground">
+          {segment.text}
+        </p>
       </div>
 
       {/* Alternatives */}
@@ -138,14 +156,18 @@ function SegmentPanel({ segment, onClose, onJumpToOriginal }: SegmentPanelProps)
               <span
                 className="text-xs font-display font-bold shrink-0 w-5 h-5 rounded-full inline-flex items-center justify-center mt-0.5"
                 style={{
-                  backgroundColor: isHigh ? "oklch(0.55 0.22 25)" : "oklch(0.65 0.18 72)",
+                  backgroundColor: isHigh
+                    ? "oklch(0.55 0.22 25)"
+                    : "oklch(0.65 0.18 72)",
                   color: "white",
                   fontSize: "9px",
                 }}
               >
                 {i + 1}
               </span>
-              <p className="text-sm font-serif leading-relaxed flex-1 text-foreground">{alt}</p>
+              <p className="text-sm font-serif leading-relaxed flex-1 text-foreground">
+                {alt}
+              </p>
               <CopyButton text={alt} altIndex={`${segment.segmentId}-${i}`} />
             </div>
           ))}
@@ -194,7 +216,7 @@ export function AnnotatedText({ segments, textareaRef }: AnnotatedTextProps) {
         ta.classList.remove("textarea-glow");
       }, 1800);
     },
-    [textareaRef]
+    [textareaRef],
   );
 
   const handleSegmentClick = useCallback(
@@ -205,14 +227,14 @@ export function AnnotatedText({ segments, textareaRef }: AnnotatedTextProps) {
         scrollTextareaToSegment(segment);
       }
     },
-    [activeSegmentId, scrollTextareaToSegment]
+    [activeSegmentId, scrollTextareaToSegment],
   );
 
   const handleJumpToOriginal = useCallback(
     (segment: FrontendSegment) => {
       scrollTextareaToSegment(segment);
     },
-    [scrollTextareaToSegment]
+    [scrollTextareaToSegment],
   );
 
   return (
@@ -238,7 +260,9 @@ export function AnnotatedText({ segments, textareaRef }: AnnotatedTextProps) {
                 fontFamily: "Lora, ui-serif, Georgia, serif",
                 fontSize: "inherit",
                 lineHeight: "inherit",
-                backgroundColor: isHigh ? "oklch(0.95 0.07 15)" : "oklch(0.95 0.09 85)",
+                backgroundColor: isHigh
+                  ? "oklch(0.95 0.07 15)"
+                  : "oklch(0.95 0.09 85)",
                 borderBottom: isHigh
                   ? "2px solid oklch(0.58 0.2 25)"
                   : "2px solid oklch(0.72 0.14 72)",
@@ -249,8 +273,7 @@ export function AnnotatedText({ segments, textareaRef }: AnnotatedTextProps) {
               }}
             >
               {segment.text}
-            </button>
-            {" "}
+            </button>{" "}
             {isActive && (
               <span className="block">
                 <SegmentPanel

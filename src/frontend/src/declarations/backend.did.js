@@ -8,61 +8,67 @@
 
 import { IDL } from '@icp-sdk/core/candid';
 
-export const Segment = IDL.Record({
-  'segmentId' : IDL.Nat,
-  'text' : IDL.Text,
-  'score' : IDL.Float64,
-  'alternatives' : IDL.Vec(IDL.Text),
-  'flagged' : IDL.Bool,
-});
-export const CheckResult = IDL.Record({
+export const CheckRecord = IDL.Record({
   'id' : IDL.Nat,
-  'overallScore' : IDL.Float64,
-  'segments' : IDL.Vec(Segment),
-});
-export const CheckSummary = IDL.Record({
-  'id' : IDL.Nat,
-  'overallScore' : IDL.Float64,
   'wordCount' : IDL.Nat,
-  'preview' : IDL.Text,
+  'mode' : IDL.Text,
+  'text' : IDL.Text,
+  'plagiarismScore' : IDL.Float64,
+  'timestamp' : IDL.Int,
+  'aiScore' : IDL.Float64,
+});
+export const Suggestion = IDL.Record({
+  'id' : IDL.Nat,
+  'name' : IDL.Opt(IDL.Text),
+  'message' : IDL.Text,
   'timestamp' : IDL.Int,
 });
 
 export const idlService = IDL.Service({
   'deleteCheck' : IDL.Func([IDL.Nat], [IDL.Bool], []),
-  'getCheck' : IDL.Func([IDL.Nat], [IDL.Opt(CheckResult)], ['query']),
-  'getHistory' : IDL.Func([], [IDL.Vec(CheckSummary)], ['query']),
-  'submitCheck' : IDL.Func([IDL.Text], [CheckResult], []),
+  'deleteSuggestion' : IDL.Func([IDL.Nat], [IDL.Bool], []),
+  'getCheck' : IDL.Func([IDL.Nat], [IDL.Opt(CheckRecord)], ['query']),
+  'listChecks' : IDL.Func([], [IDL.Vec(CheckRecord)], ['query']),
+  'listSuggestions' : IDL.Func([], [IDL.Vec(Suggestion)], ['query']),
+  'saveCheck' : IDL.Func(
+      [IDL.Text, IDL.Float64, IDL.Float64, IDL.Text, IDL.Nat],
+      [IDL.Nat],
+      [],
+    ),
+  'submitSuggestion' : IDL.Func([IDL.Opt(IDL.Text), IDL.Text], [IDL.Nat], []),
 });
 
 export const idlInitArgs = [];
 
 export const idlFactory = ({ IDL }) => {
-  const Segment = IDL.Record({
-    'segmentId' : IDL.Nat,
-    'text' : IDL.Text,
-    'score' : IDL.Float64,
-    'alternatives' : IDL.Vec(IDL.Text),
-    'flagged' : IDL.Bool,
-  });
-  const CheckResult = IDL.Record({
+  const CheckRecord = IDL.Record({
     'id' : IDL.Nat,
-    'overallScore' : IDL.Float64,
-    'segments' : IDL.Vec(Segment),
-  });
-  const CheckSummary = IDL.Record({
-    'id' : IDL.Nat,
-    'overallScore' : IDL.Float64,
     'wordCount' : IDL.Nat,
-    'preview' : IDL.Text,
+    'mode' : IDL.Text,
+    'text' : IDL.Text,
+    'plagiarismScore' : IDL.Float64,
+    'timestamp' : IDL.Int,
+    'aiScore' : IDL.Float64,
+  });
+  const Suggestion = IDL.Record({
+    'id' : IDL.Nat,
+    'name' : IDL.Opt(IDL.Text),
+    'message' : IDL.Text,
     'timestamp' : IDL.Int,
   });
   
   return IDL.Service({
     'deleteCheck' : IDL.Func([IDL.Nat], [IDL.Bool], []),
-    'getCheck' : IDL.Func([IDL.Nat], [IDL.Opt(CheckResult)], ['query']),
-    'getHistory' : IDL.Func([], [IDL.Vec(CheckSummary)], ['query']),
-    'submitCheck' : IDL.Func([IDL.Text], [CheckResult], []),
+    'deleteSuggestion' : IDL.Func([IDL.Nat], [IDL.Bool], []),
+    'getCheck' : IDL.Func([IDL.Nat], [IDL.Opt(CheckRecord)], ['query']),
+    'listChecks' : IDL.Func([], [IDL.Vec(CheckRecord)], ['query']),
+    'listSuggestions' : IDL.Func([], [IDL.Vec(Suggestion)], ['query']),
+    'saveCheck' : IDL.Func(
+        [IDL.Text, IDL.Float64, IDL.Float64, IDL.Text, IDL.Nat],
+        [IDL.Nat],
+        [],
+      ),
+    'submitSuggestion' : IDL.Func([IDL.Opt(IDL.Text), IDL.Text], [IDL.Nat], []),
   });
 };
 

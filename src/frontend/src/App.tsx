@@ -1,11 +1,12 @@
-import { useState } from "react";
 import { Toaster } from "@/components/ui/sonner";
-import { Navbar } from "./components/Navbar";
+import { useState } from "react";
 import { CheckerPage } from "./components/CheckerPage";
-import { HistoryPage } from "./components/HistoryPage";
 import { Footer } from "./components/Footer";
+import { HistoryPage } from "./components/HistoryPage";
+import { Navbar } from "./components/Navbar";
+import { SuggestionsPage } from "./components/SuggestionsPage";
 
-type Page = "checker" | "history";
+type Page = "checker" | "history" | "suggestions";
 
 export default function App() {
   const [activePage, setActivePage] = useState<Page>("checker");
@@ -19,6 +20,7 @@ export default function App() {
 
       {activePage === "checker" && <CheckerPage />}
       {activePage === "history" && <HistoryPage />}
+      {activePage === "suggestions" && <SuggestionsPage />}
 
       <Footer />
       <Toaster richColors />

@@ -5,7 +5,11 @@ interface ScoreGaugeProps {
   size?: number;
 }
 
-function getScoreLabel(score: number): { label: string; color: string; glow: string } {
+function getScoreLabel(score: number): {
+  label: string;
+  color: string;
+  glow: string;
+} {
   const pct = score * 100;
   if (pct <= 30) {
     return {
@@ -13,19 +17,19 @@ function getScoreLabel(score: number): { label: string; color: string; glow: str
       color: "oklch(0.55 0.18 145)",
       glow: "oklch(0.8 0.15 145 / 0.25)",
     };
-  } else if (pct <= 60) {
+  }
+  if (pct <= 60) {
     return {
       label: "Moderate",
       color: "oklch(0.65 0.18 72)",
       glow: "oklch(0.8 0.15 80 / 0.25)",
     };
-  } else {
-    return {
-      label: "High",
-      color: "oklch(0.55 0.22 25)",
-      glow: "oklch(0.8 0.2 25 / 0.25)",
-    };
   }
+  return {
+    label: "High",
+    color: "oklch(0.55 0.22 25)",
+    glow: "oklch(0.8 0.2 25 / 0.25)",
+  };
 }
 
 export function ScoreGauge({ score, size = 180 }: ScoreGaugeProps) {
@@ -49,7 +53,8 @@ export function ScoreGauge({ score, size = 180 }: ScoreGaugeProps) {
     requestAnimationFrame(() => {
       requestAnimationFrame(() => {
         if (arc) {
-          arc.style.transition = "stroke-dashoffset 1.2s cubic-bezier(0.4, 0, 0.2, 1)";
+          arc.style.transition =
+            "stroke-dashoffset 1.2s cubic-bezier(0.4, 0, 0.2, 1)";
           arc.style.strokeDashoffset = `${offset}`;
         }
       });
@@ -64,8 +69,10 @@ export function ScoreGauge({ score, size = 180 }: ScoreGaugeProps) {
           height={size}
           viewBox={`0 0 ${size} ${size}`}
           style={{ transform: "rotate(135deg)" }}
+          role="img"
           aria-label={`Plagiarism score: ${pct}%`}
         >
+          <title>Plagiarism score: {pct}%</title>
           {/* Background track */}
           <circle
             cx={cx}

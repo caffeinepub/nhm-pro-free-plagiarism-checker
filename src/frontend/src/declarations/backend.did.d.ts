@@ -10,30 +10,29 @@ import type { ActorMethod } from '@icp-sdk/core/agent';
 import type { IDL } from '@icp-sdk/core/candid';
 import type { Principal } from '@icp-sdk/core/principal';
 
-export interface CheckResult {
+export interface CheckRecord {
   'id' : bigint,
-  'overallScore' : number,
-  'segments' : Array<Segment>,
-}
-export interface CheckSummary {
-  'id' : bigint,
-  'overallScore' : number,
   'wordCount' : bigint,
-  'preview' : string,
-  'timestamp' : bigint,
-}
-export interface Segment {
-  'segmentId' : bigint,
+  'mode' : string,
   'text' : string,
-  'score' : number,
-  'alternatives' : Array<string>,
-  'flagged' : boolean,
+  'plagiarismScore' : number,
+  'timestamp' : bigint,
+  'aiScore' : number,
+}
+export interface Suggestion {
+  'id' : bigint,
+  'name' : [] | [string],
+  'message' : string,
+  'timestamp' : bigint,
 }
 export interface _SERVICE {
   'deleteCheck' : ActorMethod<[bigint], boolean>,
-  'getCheck' : ActorMethod<[bigint], [] | [CheckResult]>,
-  'getHistory' : ActorMethod<[], Array<CheckSummary>>,
-  'submitCheck' : ActorMethod<[string], CheckResult>,
+  'deleteSuggestion' : ActorMethod<[bigint], boolean>,
+  'getCheck' : ActorMethod<[bigint], [] | [CheckRecord]>,
+  'listChecks' : ActorMethod<[], Array<CheckRecord>>,
+  'listSuggestions' : ActorMethod<[], Array<Suggestion>>,
+  'saveCheck' : ActorMethod<[string, number, number, string, bigint], bigint>,
+  'submitSuggestion' : ActorMethod<[[] | [string], string], bigint>,
 }
 export declare const idlService: IDL.ServiceClass;
 export declare const idlInitArgs: IDL.Type[];

@@ -7,28 +7,27 @@ export interface None {
     __kind__: "None";
 }
 export type Option<T> = Some<T> | None;
-export interface Segment {
-    segmentId: bigint;
-    text: string;
-    score: number;
-    alternatives: Array<string>;
-    flagged: boolean;
-}
-export interface CheckSummary {
+export interface CheckRecord {
     id: bigint;
-    overallScore: number;
     wordCount: bigint;
-    preview: string;
+    mode: string;
+    text: string;
+    plagiarismScore: number;
     timestamp: bigint;
+    aiScore: number;
 }
-export interface CheckResult {
+export interface Suggestion {
     id: bigint;
-    overallScore: number;
-    segments: Array<Segment>;
+    name?: string;
+    message: string;
+    timestamp: bigint;
 }
 export interface backendInterface {
     deleteCheck(id: bigint): Promise<boolean>;
-    getCheck(id: bigint): Promise<CheckResult | null>;
-    getHistory(): Promise<Array<CheckSummary>>;
-    submitCheck(text: string): Promise<CheckResult>;
+    deleteSuggestion(id: bigint): Promise<boolean>;
+    getCheck(id: bigint): Promise<CheckRecord | null>;
+    listChecks(): Promise<Array<CheckRecord>>;
+    listSuggestions(): Promise<Array<Suggestion>>;
+    saveCheck(text: string, plagiarismScore: number, aiScore: number, mode: string, wordCount: bigint): Promise<bigint>;
+    submitSuggestion(name: string | null, message: string): Promise<bigint>;
 }

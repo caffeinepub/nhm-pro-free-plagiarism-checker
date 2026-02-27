@@ -1,14 +1,14 @@
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import type { CheckRecord } from "../backend.d";
 import { useActor } from "./useActor";
-import type { CheckResult, CheckSummary } from "../backend.d";
 
-export function useGetHistory() {
+export function useListChecks() {
   const { actor, isFetching } = useActor();
-  return useQuery<CheckSummary[]>({
+  return useQuery<CheckRecord[]>({
     queryKey: ["history"],
     queryFn: async () => {
       if (!actor) return [];
-      return actor.getHistory();
+      return actor.listChecks();
     },
     enabled: !!actor && !isFetching,
   });
@@ -16,7 +16,7 @@ export function useGetHistory() {
 
 export function useGetCheck(id: bigint | null) {
   const { actor, isFetching } = useActor();
-  return useQuery<CheckResult | null>({
+  return useQuery<CheckRecord | null>({
     queryKey: ["check", id?.toString()],
     queryFn: async () => {
       if (!actor || id === null) return null;
@@ -26,13 +26,23 @@ export function useGetCheck(id: bigint | null) {
   });
 }
 
-export function useSubmitCheck() {
+export function useSaveCheck() {
   const { actor } = useActor();
   const queryClient = useQueryClient();
-  return useMutation<CheckResult, Error, string>({
-    mutationFn: async (text: string) => {
+  return useMutation<
+    bigint,
+    Error,
+    {
+      text: string;
+      plagiarismScore: number;
+      aiScore: number;
+      mode: string;
+      wordCount: bigint;
+    }
+  >({
+    mutationFn: async ({ text, plagiarismScore, aiScore, mode, wordCount }) => {
       if (!actor) throw new Error("No actor available");
-      return actor.submitCheck(text);
+      return actor.saveCheck(text, plagiarismScore, aiScore, mode, wordCount);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["history"] });
@@ -53,3 +63,17 @@ export function useDeleteCheck() {
     },
   });
 }
+
+export function useSubmitSuggestion() {
+  const { actor } = useActor();
+  return useMutation<bigint, Error, { name: string | null; message: string }>({
+    mutationFn: async ({ name, message }) => {
+      if (!actor) throw new Error("No actor available");
+      return actor.submitSuggestion(name, message);
+    },
+  });
+}
+
+// Legacy alias kept for compatibility
+export const useSubmitCheck = useSaveCheck;
+export const useGetHistory = useListChecks;

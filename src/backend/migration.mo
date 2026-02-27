@@ -1,42 +1,53 @@
 import Map "mo:core/Map";
 import Nat "mo:core/Nat";
-import Float "mo:core/Float";
+import Array "mo:core/Array";
 
 module {
-  type Segment = {
-    segmentId : Nat;
-    text : Text;
-    score : Float;
-    flagged : Bool;
-    alternatives : [Text];
-  };
-
-  type CheckResult = {
+  type OldCheckRecord = {
     id : Nat;
-    overallScore : Float;
-    segments : [Segment];
+    timestamp : Int;
+    text : Text;
+    plagiarismScore : Float;
+    aiScore : Float;
+    mode : Text;
+    wordCount : Nat;
   };
 
   type OldActor = {
-    checkHistory : Map.Map<Nat, (CheckResult, { id : Nat; timestamp : Int; preview : Text; overallScore : Float; wordCount : Nat })>;
+    checks : Map.Map<Nat, OldCheckRecord>;
     nextId : Nat;
-    plagiarismWords : [Text];
+  };
+
+  type NewCheckRecord = {
+    id : Nat;
+    timestamp : Int;
+    text : Text;
+    plagiarismScore : Float;
+    aiScore : Float;
+    mode : Text;
+    wordCount : Nat;
+  };
+
+  type Suggestion = {
+    id : Nat;
+    timestamp : Int;
+    name : ?Text;
+    message : Text;
   };
 
   type NewActor = {
-    segmentIdCounter : Nat;
-    checkIdCounter : Nat;
-    checkHistory : Map.Map<Nat, CheckResult>;
+    checks : Map.Map<Nat, NewCheckRecord>;
+    suggestions : Map.Map<Nat, Suggestion>;
+    nextCheckId : Nat;
+    nextSuggestionId : Nat;
   };
 
   public func run(old : OldActor) : NewActor {
-    let migratedCheckHistory = old.checkHistory.map<Nat, (CheckResult, { id : Nat; timestamp : Int; preview : Text; overallScore : Float; wordCount : Nat }), CheckResult>(
-      func(_nat, tuple) { tuple.0 }
-    );
     {
-      segmentIdCounter = 0;
-      checkIdCounter = 0;
-      checkHistory = migratedCheckHistory;
+      checks = old.checks;
+      suggestions = Map.empty<Nat, Suggestion>();
+      nextCheckId = old.nextId;
+      nextSuggestionId = 1; // Start from 1 as there were no suggestions before
     };
   };
 };

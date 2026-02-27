@@ -52,6 +52,11 @@
     --navy-light: 0.35 0.07 255;
     --blue-accent: 0.55 0.18 248;
 
+    /* AI detection palette */
+    --highlight-ai-bg: 0.93 0.06 300;
+    --highlight-ai-border: 0.55 0.22 300;
+    --highlight-ai-text: 0.35 0.18 300;
+
     --chart-1: 0.646 0.222 41.116;
     --chart-2: 0.6 0.118 184.704;
     --chart-3: 0.398 0.07 227.392;
@@ -217,6 +222,55 @@
     border: 2px solid oklch(0.55 0.18 248);
   }
 
+  @keyframes textareaGlowViolet {
+    0% {
+      box-shadow: 0 0 0 3px oklch(0.55 0.22 300 / 0.7), 0 0 16px oklch(0.55 0.22 300 / 0.35);
+      border-color: oklch(0.55 0.22 300);
+    }
+    60% {
+      box-shadow: 0 0 0 4px oklch(0.55 0.22 300 / 0.45), 0 0 24px oklch(0.55 0.22 300 / 0.25);
+      border-color: oklch(0.55 0.22 300);
+    }
+    100% {
+      box-shadow: none;
+      border-color: transparent;
+    }
+  }
+
+  .textarea-glow-violet {
+    animation: textareaGlowViolet 1.8s var(--ease-smooth) forwards;
+    border-radius: 0.5rem;
+    border: 2px solid oklch(0.55 0.22 300);
+  }
+
+  /* AI Detection segment styles */
+  .segment-ai {
+    background-color: oklch(0.93 0.06 300);
+    border-bottom: 2px solid oklch(0.55 0.22 300);
+    color: oklch(0.35 0.18 300);
+    border-radius: 2px;
+    padding: 1px 2px;
+    cursor: pointer;
+    transition: background-color 0.15s ease, box-shadow 0.15s ease;
+  }
+
+  .segment-ai:hover,
+  .segment-ai.active {
+    background-color: oklch(0.86 0.1 300);
+  }
+
+  /* Pulse animation when "Jump" is clicked from the navigation list */
+  @keyframes segmentAiPulse {
+    0%   { box-shadow: 0 0 0 0 oklch(0.55 0.22 300 / 0.7); background-color: oklch(0.86 0.1 300); }
+    40%  { box-shadow: 0 0 0 6px oklch(0.55 0.22 300 / 0.35); background-color: oklch(0.82 0.12 300); }
+    80%  { box-shadow: 0 0 0 10px oklch(0.55 0.22 300 / 0.1); }
+    100% { box-shadow: 0 0 0 0 oklch(0.55 0.22 300 / 0); background-color: oklch(0.93 0.06 300); }
+  }
+
+  .segment-ai-pulse {
+    animation: segmentAiPulse 1.4s var(--ease-smooth) forwards;
+  }
+
   /* Print styles */
   @media print {
     .no-print {
@@ -249,6 +303,14 @@
       background-color: #fee2e2 !important;
       border-bottom: 2px solid #dc2626 !important;
       color: #991b1b !important;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+
+    .segment-ai {
+      background-color: #ede9fe !important;
+      border-bottom: 2px solid #7c3aed !important;
+      color: #4c1d95 !important;
       -webkit-print-color-adjust: exact;
       print-color-adjust: exact;
     }

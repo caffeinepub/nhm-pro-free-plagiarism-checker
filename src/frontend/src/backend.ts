@@ -89,32 +89,31 @@ export class ExternalBlob {
         return this;
     }
 }
-export interface Segment {
-    segmentId: bigint;
-    text: string;
-    score: number;
-    alternatives: Array<string>;
-    flagged: boolean;
-}
-export interface CheckSummary {
+export interface CheckRecord {
     id: bigint;
-    overallScore: number;
     wordCount: bigint;
-    preview: string;
+    mode: string;
+    text: string;
+    plagiarismScore: number;
     timestamp: bigint;
+    aiScore: number;
 }
-export interface CheckResult {
+export interface Suggestion {
     id: bigint;
-    overallScore: number;
-    segments: Array<Segment>;
+    name?: string;
+    message: string;
+    timestamp: bigint;
 }
 export interface backendInterface {
     deleteCheck(id: bigint): Promise<boolean>;
-    getCheck(id: bigint): Promise<CheckResult | null>;
-    getHistory(): Promise<Array<CheckSummary>>;
-    submitCheck(text: string): Promise<CheckResult>;
+    deleteSuggestion(id: bigint): Promise<boolean>;
+    getCheck(id: bigint): Promise<CheckRecord | null>;
+    listChecks(): Promise<Array<CheckRecord>>;
+    listSuggestions(): Promise<Array<Suggestion>>;
+    saveCheck(text: string, plagiarismScore: number, aiScore: number, mode: string, wordCount: bigint): Promise<bigint>;
+    submitSuggestion(name: string | null, message: string): Promise<bigint>;
 }
-import type { CheckResult as _CheckResult } from "./declarations/backend.did.d.ts";
+import type { CheckRecord as _CheckRecord, Suggestion as _Suggestion } from "./declarations/backend.did.d.ts";
 export class Backend implements backendInterface {
     constructor(private actor: ActorSubclass<_SERVICE>, private _uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, private _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, private processError?: (error: unknown) => never){}
     async deleteCheck(arg0: bigint): Promise<boolean> {
@@ -131,7 +130,21 @@ export class Backend implements backendInterface {
             return result;
         }
     }
-    async getCheck(arg0: bigint): Promise<CheckResult | null> {
+    async deleteSuggestion(arg0: bigint): Promise<boolean> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.deleteSuggestion(arg0);
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.deleteSuggestion(arg0);
+            return result;
+        }
+    }
+    async getCheck(arg0: bigint): Promise<CheckRecord | null> {
         if (this.processError) {
             try {
                 const result = await this.actor.getCheck(arg0);
@@ -145,37 +158,95 @@ export class Backend implements backendInterface {
             return from_candid_opt_n1(this._uploadFile, this._downloadFile, result);
         }
     }
-    async getHistory(): Promise<Array<CheckSummary>> {
+    async listChecks(): Promise<Array<CheckRecord>> {
         if (this.processError) {
             try {
-                const result = await this.actor.getHistory();
+                const result = await this.actor.listChecks();
                 return result;
             } catch (e) {
                 this.processError(e);
                 throw new Error("unreachable");
             }
         } else {
-            const result = await this.actor.getHistory();
+            const result = await this.actor.listChecks();
             return result;
         }
     }
-    async submitCheck(arg0: string): Promise<CheckResult> {
+    async listSuggestions(): Promise<Array<Suggestion>> {
         if (this.processError) {
             try {
-                const result = await this.actor.submitCheck(arg0);
+                const result = await this.actor.listSuggestions();
+                return from_candid_vec_n2(this._uploadFile, this._downloadFile, result);
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.listSuggestions();
+            return from_candid_vec_n2(this._uploadFile, this._downloadFile, result);
+        }
+    }
+    async saveCheck(arg0: string, arg1: number, arg2: number, arg3: string, arg4: bigint): Promise<bigint> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.saveCheck(arg0, arg1, arg2, arg3, arg4);
                 return result;
             } catch (e) {
                 this.processError(e);
                 throw new Error("unreachable");
             }
         } else {
-            const result = await this.actor.submitCheck(arg0);
+            const result = await this.actor.saveCheck(arg0, arg1, arg2, arg3, arg4);
+            return result;
+        }
+    }
+    async submitSuggestion(arg0: string | null, arg1: string): Promise<bigint> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.submitSuggestion(to_candid_opt_n6(this._uploadFile, this._downloadFile, arg0), arg1);
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.submitSuggestion(to_candid_opt_n6(this._uploadFile, this._downloadFile, arg0), arg1);
             return result;
         }
     }
 }
-function from_candid_opt_n1(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: [] | [_CheckResult]): CheckResult | null {
+function from_candid_Suggestion_n3(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: _Suggestion): Suggestion {
+    return from_candid_record_n4(_uploadFile, _downloadFile, value);
+}
+function from_candid_opt_n1(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: [] | [_CheckRecord]): CheckRecord | null {
     return value.length === 0 ? null : value[0];
+}
+function from_candid_opt_n5(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: [] | [string]): string | null {
+    return value.length === 0 ? null : value[0];
+}
+function from_candid_record_n4(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: {
+    id: bigint;
+    name: [] | [string];
+    message: string;
+    timestamp: bigint;
+}): {
+    id: bigint;
+    name?: string;
+    message: string;
+    timestamp: bigint;
+} {
+    return {
+        id: value.id,
+        name: record_opt_to_undefined(from_candid_opt_n5(_uploadFile, _downloadFile, value.name)),
+        message: value.message,
+        timestamp: value.timestamp
+    };
+}
+function from_candid_vec_n2(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: Array<_Suggestion>): Array<Suggestion> {
+    return value.map((x)=>from_candid_Suggestion_n3(_uploadFile, _downloadFile, x));
+}
+function to_candid_opt_n6(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: string | null): [] | [string] {
+    return value === null ? candid_none() : candid_some(value);
 }
 export interface CreateActorOptions {
     agent?: Agent;

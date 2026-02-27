@@ -18,14 +18,20 @@ export function Footer() {
             >
               <ShieldCheck className="w-3.5 h-3.5 text-white" />
             </div>
-            <span className="font-display font-semibold text-sm" style={{ color: "oklch(0.28 0.08 255)" }}>
+            <span
+              className="font-display font-semibold text-sm"
+              style={{ color: "oklch(0.28 0.08 255)" }}
+            >
               NHM Pro Free Plagiarism Checker
             </span>
           </div>
 
           <div className="flex items-center gap-1 font-display text-xs text-muted-foreground">
             <span>© 2026. Built with</span>
-            <Heart className="w-3 h-3 fill-current" style={{ color: "oklch(0.55 0.22 25)" }} />
+            <Heart
+              className="w-3 h-3 fill-current"
+              style={{ color: "oklch(0.55 0.22 25)" }}
+            />
             <span>using</span>
             <a
               href="https://caffeine.ai"

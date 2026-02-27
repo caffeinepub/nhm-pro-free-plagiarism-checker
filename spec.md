@@ -1,25 +1,23 @@
 # NHM Pro Free Plagiarism Checker
 
 ## Current State
-Full-stack plagiarism + AI detection app. Backend stores check history records (saveCheck, listChecks, getCheck, deleteCheck). Frontend has two pages: Checker and History. Navbar has tabs for those two pages.
+The app has a Checker, History, Suggestions, and Admin page. The Admin page shows submitted suggestions with delete capability. It is accessible to anyone via the Navbar without any authentication.
 
 ## Requested Changes (Diff)
 
 ### Add
-- Backend: `Suggestion` type with id, timestamp, name (optional), message text. `submitSuggestion(name, message)` public func. `listSuggestions()` query func (admin view). `deleteSuggestion(id)` func.
-- Frontend: New `SuggestionsPage` component with a form (optional name field + message textarea + submit button). After submission show a thank-you confirmation. Add "Suggestions" tab to Navbar.
-- App.tsx: Add "suggestions" to the Page type and render SuggestionsPage.
+- PIN gate on the Admin tab: before showing the Suggestions Inbox, prompt the user to enter a 4-digit PIN
+- The correct PIN is hardcoded as "2025" (a simple client-side gate)
+- After entering the correct PIN, show the inbox and remember the session (until page reload)
+- Wrong PIN shows an error message
 
 ### Modify
-- Navbar: Add a "Suggestions" tab alongside Checker and History.
-- App.tsx: Handle the new "suggestions" page route.
+- AdminInboxPage: wrap content in a PIN entry screen that shows first; on correct PIN, reveal the inbox
 
 ### Remove
-- Nothing removed.
+- Nothing removed
 
 ## Implementation Plan
-1. Update `main.mo` to add Suggestion type and submitSuggestion / listSuggestions / deleteSuggestion functions.
-2. Regenerate backend bindings (generate_motoko_code).
-3. Create `SuggestionsPage.tsx` with a submission form and confirmation state.
-4. Update `Navbar.tsx` to include a Suggestions tab.
-5. Update `App.tsx` to add "suggestions" page type and render SuggestionsPage.
+1. Add a `PinGate` component that renders a PIN entry form (4-digit input, submit button, error message)
+2. In `AdminInboxPage`, add local state `unlocked` (default false); render `PinGate` when not unlocked, render inbox when unlocked
+3. Correct PIN: "2025" (hardcoded, client-side only)

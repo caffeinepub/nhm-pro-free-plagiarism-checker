@@ -1,17 +1,171 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import {
   AlertTriangle,
   Clock,
   Inbox,
   Loader2,
+  Lock,
   RefreshCw,
   Trash2,
   User,
 } from "lucide-react";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { toast } from "sonner";
 import { useDeleteSuggestion, useListSuggestions } from "../hooks/useQueries";
+
+const ADMIN_PIN = "2025";
+
+function PinGate({ onUnlock }: { onUnlock: () => void }) {
+  const [pin, setPin] = useState("");
+  const [error, setError] = useState(false);
+  const [shake, setShake] = useState(false);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  const handleUnlock = () => {
+    if (pin === ADMIN_PIN) {
+      setError(false);
+      onUnlock();
+    } else {
+      setError(true);
+      setShake(true);
+      setPin("");
+      setTimeout(() => setShake(false), 500);
+      setTimeout(() => inputRef.current?.focus(), 50);
+    }
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter") handleUnlock();
+  };
+
+  return (
+    <main className="flex-1 flex items-center justify-center min-h-[60vh] px-4">
+      <div
+        className={`w-full max-w-sm rounded-2xl overflow-hidden transition-all duration-200 ${shake ? "animate-shake" : ""}`}
+        style={{
+          background:
+            "linear-gradient(160deg, oklch(0.18 0.055 260) 0%, oklch(0.14 0.04 255) 100%)",
+          border: "1px solid oklch(1 0 0 / 0.1)",
+          boxShadow:
+            "0 24px 60px oklch(0.08 0.06 260 / 0.6), 0 0 0 1px oklch(1 0 0 / 0.04)",
+        }}
+      >
+        {/* Top accent */}
+        <div
+          className="h-1 w-full"
+          style={{
+            background:
+              "linear-gradient(90deg, oklch(0.55 0.18 255) 0%, oklch(0.65 0.14 220) 100%)",
+          }}
+        />
+
+        <div className="px-8 py-8 flex flex-col items-center gap-6">
+          {/* Lock icon */}
+          <div
+            className="w-14 h-14 rounded-2xl flex items-center justify-center"
+            style={{
+              background: "oklch(1 0 0 / 0.08)",
+              border: "1.5px solid oklch(1 0 0 / 0.14)",
+            }}
+          >
+            <Lock
+              className="w-6 h-6"
+              style={{ color: "oklch(0.72 0.12 255)" }}
+            />
+          </div>
+
+          {/* Text */}
+          <div className="text-center">
+            <h2
+              className="font-display font-bold text-xl mb-1"
+              style={{ color: "oklch(0.95 0.02 250)" }}
+            >
+              Admin Access
+            </h2>
+            <p
+              className="font-display text-sm leading-relaxed"
+              style={{ color: "oklch(0.65 0.05 245)" }}
+            >
+              Enter your PIN to view suggestions
+            </p>
+          </div>
+
+          {/* PIN input */}
+          <div className="w-full flex flex-col gap-3">
+            <Input
+              ref={inputRef}
+              type="password"
+              inputMode="numeric"
+              maxLength={4}
+              placeholder="••••"
+              value={pin}
+              onChange={(e) => {
+                setPin(e.target.value.replace(/\D/g, "").slice(0, 4));
+                if (error) setError(false);
+              }}
+              onKeyDown={handleKeyDown}
+              autoFocus
+              className="text-center text-2xl tracking-[0.5em] font-display h-14 rounded-xl font-bold placeholder:tracking-widest placeholder:text-lg"
+              style={{
+                background: "oklch(1 0 0 / 0.06)",
+                border: error
+                  ? "1.5px solid oklch(0.6 0.2 25)"
+                  : "1.5px solid oklch(1 0 0 / 0.14)",
+                color: "oklch(0.96 0.01 250)",
+                caretColor: "oklch(0.72 0.12 255)",
+                outline: "none",
+                transition: "border-color 0.2s",
+              }}
+            />
+
+            {error && (
+              <p
+                className="font-display text-xs text-center"
+                style={{ color: "oklch(0.68 0.18 25)" }}
+              >
+                Incorrect PIN. Please try again.
+              </p>
+            )}
+
+            <Button
+              onClick={handleUnlock}
+              disabled={pin.length !== 4}
+              className="w-full h-11 rounded-xl font-display font-semibold text-sm transition-all duration-200"
+              style={{
+                background:
+                  pin.length === 4
+                    ? "linear-gradient(135deg, oklch(0.45 0.18 255) 0%, oklch(0.5 0.2 245) 100%)"
+                    : "oklch(1 0 0 / 0.08)",
+                color: pin.length === 4 ? "white" : "oklch(0.45 0.04 255)",
+                border: "none",
+                cursor: pin.length !== 4 ? "not-allowed" : "pointer",
+              }}
+            >
+              Unlock
+            </Button>
+          </div>
+        </div>
+      </div>
+
+      <style>{`
+        @keyframes shake {
+          0%, 100% { transform: translateX(0); }
+          15% { transform: translateX(-8px); }
+          30% { transform: translateX(8px); }
+          45% { transform: translateX(-6px); }
+          60% { transform: translateX(6px); }
+          75% { transform: translateX(-4px); }
+          90% { transform: translateX(4px); }
+        }
+        .animate-shake {
+          animation: shake 0.5s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+        }
+      `}</style>
+    </main>
+  );
+}
 
 function formatTimestamp(ts: bigint): string {
   // Motoko timestamps are nanoseconds since epoch
@@ -28,6 +182,16 @@ function formatTimestamp(ts: bigint): string {
 }
 
 export function AdminInboxPage() {
+  const [unlocked, setUnlocked] = useState(false);
+
+  if (!unlocked) {
+    return <PinGate onUnlock={() => setUnlocked(true)} />;
+  }
+
+  return <AdminInboxContent />;
+}
+
+function AdminInboxContent() {
   const {
     data: suggestions = [],
     isLoading,

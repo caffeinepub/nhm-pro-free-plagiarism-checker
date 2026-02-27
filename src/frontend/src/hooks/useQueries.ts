@@ -74,6 +74,34 @@ export function useSubmitSuggestion() {
   });
 }
 
+export function useListSuggestions() {
+  const { actor, isFetching } = useActor();
+  return useQuery<
+    Array<{ id: bigint; timestamp: bigint; name?: string; message: string }>
+  >({
+    queryKey: ["suggestions"],
+    queryFn: async () => {
+      if (!actor) return [];
+      return actor.listSuggestions();
+    },
+    enabled: !!actor && !isFetching,
+  });
+}
+
+export function useDeleteSuggestion() {
+  const { actor } = useActor();
+  const queryClient = useQueryClient();
+  return useMutation<boolean, Error, bigint>({
+    mutationFn: async (id: bigint) => {
+      if (!actor) throw new Error("No actor available");
+      return actor.deleteSuggestion(id);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["suggestions"] });
+    },
+  });
+}
+
 // Legacy alias kept for compatibility
 export const useSubmitCheck = useSaveCheck;
 export const useGetHistory = useListChecks;

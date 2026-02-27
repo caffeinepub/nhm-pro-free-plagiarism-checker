@@ -1,7 +1,17 @@
+import { ShieldCheck } from "lucide-react";
+
+type Page = "checker" | "history" | "suggestions" | "admin";
+
 interface NavbarProps {
-  activePage: "checker" | "history" | "suggestions";
-  onNavigate: (page: "checker" | "history" | "suggestions") => void;
+  activePage: Page;
+  onNavigate: (page: Page) => void;
 }
+
+const NAV_ITEMS: { id: Page; label: string }[] = [
+  { id: "checker", label: "Checker" },
+  { id: "history", label: "History" },
+  { id: "suggestions", label: "Suggestions" },
+];
 
 export function Navbar({ activePage, onNavigate }: NavbarProps) {
   return (
@@ -54,29 +64,54 @@ export function Navbar({ activePage, onNavigate }: NavbarProps) {
 
           {/* Nav tabs */}
           <nav className="flex items-center gap-1">
-            {(["checker", "history", "suggestions"] as const).map((page) => (
+            {NAV_ITEMS.map(({ id, label }) => (
               <button
-                key={page}
+                key={id}
                 type="button"
-                onClick={() => onNavigate(page)}
-                className="font-display font-medium text-sm px-4 py-2 rounded-lg transition-all duration-150 capitalize"
+                onClick={() => onNavigate(id)}
+                className="font-display font-medium text-sm px-3 py-2 rounded-lg transition-all duration-150"
                 style={{
                   backgroundColor:
-                    activePage === page ? "oklch(1 0 0 / 0.15)" : "transparent",
-                  color: activePage === page ? "white" : "oklch(0.82 0.04 240)",
+                    activePage === id ? "oklch(1 0 0 / 0.15)" : "transparent",
+                  color: activePage === id ? "white" : "oklch(0.82 0.04 240)",
                   border:
-                    activePage === page
+                    activePage === id
                       ? "1px solid oklch(1 0 0 / 0.2)"
                       : "1px solid transparent",
                 }}
               >
-                {page === "checker"
-                  ? "Checker"
-                  : page === "history"
-                    ? "History"
-                    : "Suggestions"}
+                {label}
               </button>
             ))}
+
+            {/* Admin tab — visually separated */}
+            <div
+              className="w-px h-5 mx-1"
+              style={{ backgroundColor: "oklch(1 0 0 / 0.2)" }}
+              aria-hidden="true"
+            />
+            <button
+              type="button"
+              onClick={() => onNavigate("admin")}
+              className="font-display font-medium text-sm px-3 py-2 rounded-lg transition-all duration-150 flex items-center gap-1.5"
+              style={{
+                backgroundColor:
+                  activePage === "admin"
+                    ? "oklch(0.62 0.18 145 / 0.25)"
+                    : "transparent",
+                color:
+                  activePage === "admin"
+                    ? "oklch(0.88 0.1 145)"
+                    : "oklch(0.72 0.1 145)",
+                border:
+                  activePage === "admin"
+                    ? "1px solid oklch(0.62 0.18 145 / 0.4)"
+                    : "1px solid transparent",
+              }}
+            >
+              <ShieldCheck className="w-3.5 h-3.5" />
+              <span className="hidden sm:inline">Admin</span>
+            </button>
           </nav>
         </div>
       </div>

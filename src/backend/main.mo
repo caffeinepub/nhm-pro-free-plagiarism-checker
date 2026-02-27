@@ -4,8 +4,8 @@ import Time "mo:core/Time";
 import Array "mo:core/Array";
 import Float "mo:core/Float";
 import Text "mo:core/Text";
-import Migration "migration";
-(with migration = Migration.run)
+
+
 actor {
   type CheckRecord = {
     id : Nat;

@@ -15,7 +15,7 @@ import { useRef, useState } from "react";
 import { toast } from "sonner";
 import { useDeleteSuggestion, useListSuggestions } from "../hooks/useQueries";
 
-const ADMIN_PIN = "2025";
+const ADMIN_PIN = "NHMNFOL";
 
 function PinGate({ onUnlock }: { onUnlock: () => void }) {
   const [pin, setPin] = useState("");
@@ -97,17 +97,16 @@ function PinGate({ onUnlock }: { onUnlock: () => void }) {
             <Input
               ref={inputRef}
               type="password"
-              inputMode="numeric"
-              maxLength={4}
-              placeholder="••••"
+              maxLength={20}
+              placeholder="Enter PIN"
               value={pin}
               onChange={(e) => {
-                setPin(e.target.value.replace(/\D/g, "").slice(0, 4));
+                setPin(e.target.value);
                 if (error) setError(false);
               }}
               onKeyDown={handleKeyDown}
               autoFocus
-              className="text-center text-2xl tracking-[0.5em] font-display h-14 rounded-xl font-bold placeholder:tracking-widest placeholder:text-lg"
+              className="text-center text-xl tracking-widest font-display h-14 rounded-xl font-bold placeholder:tracking-normal placeholder:text-base"
               style={{
                 background: "oklch(1 0 0 / 0.06)",
                 border: error
@@ -131,16 +130,16 @@ function PinGate({ onUnlock }: { onUnlock: () => void }) {
 
             <Button
               onClick={handleUnlock}
-              disabled={pin.length !== 4}
+              disabled={pin.length === 0}
               className="w-full h-11 rounded-xl font-display font-semibold text-sm transition-all duration-200"
               style={{
                 background:
-                  pin.length === 4
+                  pin.length > 0
                     ? "linear-gradient(135deg, oklch(0.45 0.18 255) 0%, oklch(0.5 0.2 245) 100%)"
                     : "oklch(1 0 0 / 0.08)",
-                color: pin.length === 4 ? "white" : "oklch(0.45 0.04 255)",
+                color: pin.length > 0 ? "white" : "oklch(0.45 0.04 255)",
                 border: "none",
-                cursor: pin.length !== 4 ? "not-allowed" : "pointer",
+                cursor: pin.length === 0 ? "not-allowed" : "pointer",
               }}
             >
               Unlock

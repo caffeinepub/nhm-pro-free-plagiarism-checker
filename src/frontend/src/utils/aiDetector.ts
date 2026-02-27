@@ -1,15 +1,17 @@
 // ─── AI Writing Detection Engine ──────────────────────────────────────────────
 // Heuristics-based detector using multiple signals:
-// 1. AI phrase corpus matching
+// 1. AI phrase corpus matching (including ChatGPT 5.0 patterns)
 // 2. Burstiness / sentence-length variance
 // 3. Transition word overuse
 // 4. Lexical complexity uniformity
 // 5. Hedging language density
+// 6. Structured reasoning & meta-commentary (GPT-5 specific)
+// 7. Confident assertion overuse (GPT-5 specific)
 
 export interface AISegment {
   text: string;
   score: number; // 0-1
-  flagged: boolean; // score > 0.45
+  flagged: boolean; // score > 0.35
   triggeredPatterns: string[];
   charOffset?: number;
 }
@@ -24,13 +26,14 @@ export interface AIDetectionResult {
     transitionScore: number;
     lexicalScore: number;
     hedgingScore: number;
+    structuredReasoningScore: number;
   };
 }
 
-// ─── AI Phrase Corpus (100+ entries) ─────────────────────────────────────────
+// ─── AI Phrase Corpus (expanded with ChatGPT 5.0 patterns) ───────────────────
 
 const AI_PHRASES: string[] = [
-  // Core AI tells
+  // Core AI tells (original)
   "it is worth noting that",
   "it is important to note",
   "it is crucial to",
@@ -88,7 +91,7 @@ const AI_PHRASES: string[] = [
   "chatgpt",
   "gpt",
   "artificial intelligence generated",
-  // Additional patterns
+  // Additional patterns (original)
   "it is worth mentioning",
   "it is important to understand",
   "it is vital to",
@@ -162,6 +165,139 @@ const AI_PHRASES: string[] = [
   "it is widely accepted",
   "it is generally agreed",
   "experts agree that",
+
+  // ── ChatGPT 5.0 Specific Patterns ────────────────────────────────────────
+  // Structured reasoning / step-by-step tells
+  "let's break this down",
+  "let me break this down",
+  "breaking this down",
+  "to break it down",
+  "step by step",
+  "let's explore",
+  "let me walk you through",
+  "here's a breakdown",
+  "here's how it works",
+  "here's what that means",
+  "here's the thing",
+  "to fully understand",
+  "to properly understand",
+  "to better understand",
+  "before diving in",
+  "before we dive into",
+  "as we explore",
+  "as we delve into",
+
+  // Meta-commentary / self-referential phrases (GPT-5 loves these)
+  "it's worth understanding",
+  "it's important to recognize",
+  "it's essential to recognize",
+  "it's critical to note",
+  "what this means in practice",
+  "in practice, this means",
+  "what this tells us",
+  "what this reveals",
+  "this is particularly important because",
+  "this matters because",
+  "this is significant because",
+  "the key takeaway here",
+  "the main takeaway",
+  "the core idea here",
+  "the underlying principle",
+  "the fundamental question",
+  "at a deeper level",
+  "on a deeper level",
+  "at the most basic level",
+  "at its most fundamental",
+
+  // Over-structured enumeration signals
+  "first, it's important",
+  "secondly, it is",
+  "thirdly, it is",
+  "finally, it is",
+  "on one hand",
+  "on the flip side",
+  "that said,",
+  "with that said,",
+  "having said that,",
+  "it's worth emphasizing",
+  "it's worth highlighting",
+  "it's worth stressing",
+  "it cannot be stressed enough",
+
+  // GPT-5 confident-but-hedged tone
+  "generally speaking, this",
+  "broadly speaking, this",
+  "in most cases, this",
+  "for the most part, this",
+  "while it's true that",
+  "while it is true that",
+  "although it's important to acknowledge",
+  "it's fair to say that",
+  "it would be fair to say",
+  "one could argue that",
+  "one might argue that",
+  "it is reasonable to conclude",
+  "it is logical to assume",
+  "it stands to reason that",
+  "there is strong evidence to suggest",
+  "research suggests that",
+  "studies have shown that",
+  "evidence indicates that",
+  "data suggests that",
+
+  // GPT-5 polished ending phrases
+  "as we can see",
+  "as is evident",
+  "as demonstrated above",
+  "as outlined above",
+  "as discussed",
+  "as mentioned earlier",
+  "to conclude",
+  "to recap",
+  "to wrap up",
+  "in closing",
+  "looking ahead",
+  "moving forward",
+  "going forward",
+  "the path forward",
+  "the way forward",
+
+  // GPT-5 vocabulary flourishes
+  "underscores the importance",
+  "underscores the need",
+  "highlights the importance",
+  "highlights the need",
+  "emphasizes the importance",
+  "reinforces the idea",
+  "reinforces the notion",
+  "challenges the notion",
+  "calls into question",
+  "brings to light",
+  "lays the groundwork",
+  "paves the way",
+  "sets the stage",
+  "it is no surprise that",
+  "it comes as no surprise",
+  "it is not surprising that",
+  "unsurprisingly",
+  "not surprisingly",
+  "as expected",
+  "as one might expect",
+  "interestingly enough",
+  "perhaps most importantly",
+  "more importantly",
+  "most importantly",
+  "above all else",
+  "in essence,",
+  "in reality,",
+  "in truth,",
+  "in fact,",
+  "indeed,",
+  "crucially,",
+  "notably,",
+  "fundamentally,",
+  "ultimately,",
+  "effectively,",
 ];
 
 // ─── Transition Words ─────────────────────────────────────────────────────────
@@ -217,6 +353,16 @@ const TRANSITION_WORDS: string[] = [
   "at the same time",
   "in any case",
   "above all",
+  // GPT-5 additional transitions
+  "that said",
+  "with that said",
+  "having said that",
+  "in this context",
+  "to this end",
+  "as such",
+  "by extension",
+  "in turn",
+  "in parallel",
 ];
 
 // ─── Hedging Phrases ─────────────────────────────────────────────────────────
@@ -253,6 +399,75 @@ const HEDGING_PHRASES: string[] = [
   "broadly speaking",
   "in general",
   "for the most part",
+  // GPT-5 hedging additions
+  "one could argue",
+  "one might argue",
+  "it could be argued",
+  "it can be argued",
+  "it is reasonable to suggest",
+  "there is reason to believe",
+  "it seems reasonable",
+  "it appears reasonable",
+  "may well be",
+  "might well be",
+];
+
+// ─── GPT-5 Structured Reasoning Phrases ──────────────────────────────────────
+// These are patterns specific to GPT-5's "thinking out loud" style
+
+const STRUCTURED_REASONING_PHRASES: string[] = [
+  // Step/breakdown openings
+  "let's break this down",
+  "let me break this down",
+  "let's explore this",
+  "let me explain",
+  "here's why",
+  "here's how",
+  "here's what",
+  "to understand this",
+  "to grasp this",
+  "step by step",
+
+  // Meta-analytical markers
+  "what this means",
+  "what this tells us",
+  "what this reveals",
+  "what's happening here",
+  "the key here is",
+  "the point here is",
+  "the idea here is",
+  "the goal here is",
+  "the reason for this",
+  "the reason behind this",
+  "the logic here",
+  "the logic is",
+  "the underlying reason",
+  "the underlying cause",
+  "the root cause",
+  "the core issue",
+  "the core concept",
+  "the real question is",
+  "the real issue is",
+
+  // Confident conclusions
+  "this clearly shows",
+  "this clearly demonstrates",
+  "this clearly illustrates",
+  "this clearly indicates",
+  "this strongly suggests",
+  "this firmly establishes",
+  "this definitively shows",
+  "this proves that",
+  "this confirms that",
+
+  // Rhetorical questions (GPT-5 loves these)
+  "so why does this matter",
+  "so what does this mean",
+  "so how does this work",
+  "so what can we conclude",
+  "but why is this",
+  "but how does this",
+  "but what does this",
 ];
 
 // ─── Utility: Sentence Splitter ───────────────────────────────────────────────
@@ -408,6 +623,62 @@ function computeHedgingScore(lower: string): {
   return { score, patterns };
 }
 
+// ─── Heuristic 6: Structured Reasoning & Meta-Commentary (GPT-5) ─────────────
+// GPT-5 tends to "think out loud" with structured reasoning markers,
+// rhetorical questions, and meta-analytical commentary.
+
+function computeStructuredReasoningScore(lower: string): {
+  score: number;
+  patterns: string[];
+} {
+  const words = lower.split(/\s+/).filter((w) => w.length > 0);
+  if (words.length === 0) return { score: 0, patterns: [] };
+
+  let hits = 0;
+  const matched: string[] = [];
+
+  for (const phrase of STRUCTURED_REASONING_PHRASES) {
+    if (lower.includes(phrase)) {
+      hits++;
+      const display = phrase.charAt(0).toUpperCase() + phrase.slice(1);
+      matched.push(`GPT-5 pattern: "${display}"`);
+    }
+  }
+
+  // Check for numbered/bulleted list structure (GPT-5 over-structures responses)
+  const numberedListMatches = lower.match(/^\s*\d+[\.\)]\s+/gm);
+  if (numberedListMatches && numberedListMatches.length >= 2) {
+    hits += 2;
+    matched.push(
+      `Numbered list structure (${numberedListMatches.length} items)`,
+    );
+  }
+
+  // Check for colon-introduced lists (GPT-5 style: "There are three reasons:")
+  const colonIntros = lower.match(
+    /\b(following|reasons?|ways?|steps?|factors?|aspects?|elements?|points?|things?)\s*:/g,
+  );
+  if (colonIntros && colonIntros.length >= 1) {
+    hits += 1;
+    matched.push("Colon-introduced list structure");
+  }
+
+  // Check for "bold header" style in plain text (GPT-5 often uses ALL CAPS or Title Case headers)
+  const upperCaseHeaders = lower.match(/\b[A-Z]{4,}\b/g);
+  if (upperCaseHeaders && upperCaseHeaders.length >= 2) {
+    hits += 1;
+    matched.push(`All-caps emphasis (${upperCaseHeaders.length} instances)`);
+  }
+
+  const density = words.length > 0 ? hits / Math.max(1, words.length / 30) : 0;
+  const score = Math.min(1, density * 0.45 + (hits > 0 ? 0.1 : 0));
+
+  const patterns =
+    hits >= 2 ? matched.slice(0, 3) : hits === 1 ? matched.slice(0, 1) : [];
+
+  return { score, patterns };
+}
+
 // ─── Per-Segment Scorer ───────────────────────────────────────────────────────
 
 function scoreSegment(
@@ -420,6 +691,7 @@ function scoreSegment(
   const transition = computeTransitionScore(lower);
   const lexical = computeLexicalScore(lower);
   const hedging = computeHedgingScore(lower);
+  const structured = computeStructuredReasoningScore(lower);
 
   const patterns = [
     ...phrase.patterns,
@@ -429,15 +701,17 @@ function scoreSegment(
     ...transition.patterns,
     ...lexical.patterns,
     ...hedging.patterns,
+    ...structured.patterns,
   ];
 
-  // Weighted combination (phrase matching is strongest signal)
+  // Weighted combination — phrase matching and structured reasoning are strongest signals
   const score =
-    phrase.score * 0.4 +
-    burstiessScore * 0.2 +
-    transition.score * 0.15 +
-    lexical.score * 0.15 +
-    hedging.score * 0.1;
+    phrase.score * 0.35 +
+    burstiessScore * 0.15 +
+    transition.score * 0.12 +
+    lexical.score * 0.13 +
+    hedging.score * 0.1 +
+    structured.score * 0.15;
 
   return { score: Math.min(1, score), patterns };
 }
@@ -456,6 +730,7 @@ export function detectAI(text: string): AIDetectionResult {
         transitionScore: 0,
         lexicalScore: 0,
         hedgingScore: 0,
+        structuredReasoningScore: 0,
       },
     };
   }
@@ -470,6 +745,7 @@ export function detectAI(text: string): AIDetectionResult {
   const { score: globalLexical } = computeLexicalScore(lower);
   const { score: globalHedging } = computeHedgingScore(lower);
   const { score: globalPhrase } = computePhraseScore(lower);
+  const { score: globalStructured } = computeStructuredReasoningScore(lower);
 
   // Score each segment
   const segments: AISegment[] = rawSentences.map(
@@ -478,7 +754,7 @@ export function detectAI(text: string): AIDetectionResult {
       return {
         text: segText,
         score,
-        // Lower threshold: flag any sentence with AI score >= 0.35
+        // Flag any sentence with AI score >= 0.35
         flagged: score >= 0.35,
         triggeredPatterns: patterns,
         charOffset: offset,
@@ -486,14 +762,15 @@ export function detectAI(text: string): AIDetectionResult {
     },
   );
 
-  // Overall score = weighted combo of global heuristics
+  // Overall score = weighted combo of global heuristics (now includes structured reasoning)
   const overallScore = Math.min(
     1,
-    globalPhrase * 0.4 +
-      burstiessScore * 0.2 +
-      globalTransition * 0.15 +
-      globalLexical * 0.15 +
-      globalHedging * 0.1,
+    globalPhrase * 0.35 +
+      burstiessScore * 0.15 +
+      globalTransition * 0.12 +
+      globalLexical * 0.13 +
+      globalHedging * 0.1 +
+      globalStructured * 0.15,
   );
 
   const label: AIDetectionResult["label"] =
@@ -513,6 +790,7 @@ export function detectAI(text: string): AIDetectionResult {
       transitionScore: globalTransition,
       lexicalScore: globalLexical,
       hedgingScore: globalHedging,
+      structuredReasoningScore: globalStructured,
     },
   };
 }

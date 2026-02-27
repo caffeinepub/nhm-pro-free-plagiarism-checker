@@ -572,6 +572,10 @@ function AIResultsPanel({ aiResult }: AIResultsPanelProps) {
               label="Hedging Language"
               score={aiResult.heuristicBreakdown.hedgingScore}
             />
+            <HeuristicBar
+              label="GPT-5 Reasoning"
+              score={aiResult.heuristicBreakdown.structuredReasoningScore}
+            />
           </div>
         </div>
       </div>

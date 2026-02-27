@@ -516,7 +516,7 @@ export function ReportModal({ result, aiResult, onClose }: ReportModalProps) {
                 <p className="font-display text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-3">
                   Heuristic Breakdown
                 </p>
-                <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                   {[
                     {
                       label: "Phrase Patterns",
@@ -537,6 +537,11 @@ export function ReportModal({ result, aiResult, onClose }: ReportModalProps) {
                     {
                       label: "Hedging",
                       score: aiResult.heuristicBreakdown.hedgingScore,
+                    },
+                    {
+                      label: "GPT-5 Reasoning",
+                      score:
+                        aiResult.heuristicBreakdown.structuredReasoningScore,
                     },
                   ].map(({ label, score }) => {
                     const p = Math.round(score * 100);
